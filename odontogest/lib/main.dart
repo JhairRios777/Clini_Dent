@@ -1,122 +1,219 @@
 import 'package:flutter/material.dart';
+import 'core/constants/app_colors.dart';
+import 'core/constants/app_assets.dart';
+import 'core/constants/app_strings.dart';
+import 'core/constants/app_typography.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const OdontoGestApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class OdontoGestApp extends StatelessWidget {
+  const OdontoGestApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: AppStrings.appName,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const LoginScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+// ─── Wave Clipper ─────────────────────────────────────────────────────────────
+class _WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 60);
+    path.cubicTo(
+      size.width * 0.35, size.height + 20,
+      size.width * 0.65, size.height - 90,
+      size.width, size.height - 30,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  bool shouldReclip(_WaveClipper oldClipper) => false;
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// ─── Login Screen ─────────────────────────────────────────────────────────────
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _obscurePassword = true;
+  final _userController = TextEditingController();
+  final _passController = TextEditingController();
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    _passController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      backgroundColor: AppColors.background,
+      body: SingleChildScrollView(
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Header ──
+            ClipPath(
+              clipper: _WaveClipper(),
+              child: Container(
+                height: screenHeight * 0.45,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.primary, AppColors.primaryDark],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Center(
+                    child: Image.asset(
+                      AppAssets.logo,
+                      width: 220,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Formulario ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.loginTitle,
+                    style: AppTypography.headline(color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Usuario
+                  Text(
+                    AppStrings.labelUser,
+                    style: AppTypography.label(color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _userController,
+                    style: AppTypography.body(color: AppColors.textDark),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(
+                            color: AppColors.primary, width: 1.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 20),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Contraseña
+                  Text(
+                    AppStrings.labelPassword,
+                    style: AppTypography.label(color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _passController,
+                    obscureText: _obscurePassword,
+                    style: AppTypography.body(color: AppColors.textDark),
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.textMuted,
+                          size: 20,
+                        ),
+                        onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(
+                            color: AppColors.primary, width: 1.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 20),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Botón
+                  Center(
+                    child: SizedBox(
+                      width: 180,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          AppStrings.btnLogin,
+                          style: AppTypography.button(color: AppColors.surface),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  Center(
+                    child: Text(
+                      AppStrings.version,
+                      style: AppTypography.caption(color: AppColors.textMuted),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
